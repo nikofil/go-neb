@@ -10,7 +10,6 @@ import (
 	"github.com/matrix-org/go-neb/clients"
 	"github.com/matrix-org/go-neb/types"
 	log "github.com/sirupsen/logrus"
-	"maunium.net/go/mautrix"
 	"maunium.net/go/mautrix/crypto"
 	mevt "maunium.net/go/mautrix/event"
 	"maunium.net/go/mautrix/id"
@@ -57,10 +56,6 @@ func (s *Service) inRoom(roomID id.RoomID) bool {
 		}
 	}
 	return false
-}
-
-func (s *Service) handleEventMessage(source mautrix.EventSource, evt *mevt.Event) {
-	log.Infof("got a %v", evt.Content.AsMessage().Body)
 }
 
 func (s *Service) cmdCryptoHelp(roomID id.RoomID) (interface{}, error) {
@@ -329,8 +324,6 @@ func (s *Service) Commands(cli types.MatrixClient) []types.Command {
 
 // Register registers
 func (s *Service) Register(oldService types.Service, client types.MatrixClient) error {
-	botClient := client.(*clients.BotClient)
-	botClient.Syncer.(mautrix.ExtensibleSyncer).OnEventType(mevt.EventMessage, s.handleEventMessage)
 	for _, roomID := range s.Rooms {
 		if _, err := client.JoinRoom(roomID.String(), "", nil); err != nil {
 			log.WithFields(log.Fields{

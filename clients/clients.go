@@ -169,6 +169,11 @@ func (c *Clients) onMessageEvent(botClient *BotClient, event *mevt.Event) {
 	// filter m.notice to prevent loops
 	if message.MsgType == mevt.MsgNotice {
 		return
+	} else if message.MsgType == mevt.MsgVerificationRequest {
+		if err := botClient.olmMachine.ProcessInRoomVerification(event, message.RelatesTo); err != nil {
+			log.WithError(err).Error("Error processing in-room verification request")
+		}
+		return
 	}
 
 	// replace all smart quotes with their normal counterparts so shellwords can parse it
@@ -389,7 +394,10 @@ func (c *Clients) initClient(botClient *BotClient) error {
 			}).WithError(err).Error("Failed to decrypt message")
 		} else {
 			if decrypted.Type == mevt.EventMessage {
+				decrypted.Content.AsMessage().RelatesTo = encContent.RelatesTo
 				c.onMessageEvent(botClient, decrypted)
+			} else if strings.HasPrefix(decrypted.Type.String(), "m.key.verification.") {
+				botClient.olmMachine.ProcessInRoomVerification(decrypted, encContent.RelatesTo)
 			}
 			log.WithFields(log.Fields{
 				"type":      evt.Type,

@@ -78,6 +78,9 @@ type ClientConfig struct {
 	// The desired display name for this client.
 	// This does not automatically set the display name for this client. See /configureClient.
 	DisplayName string
+	// The passphrase used for recovering the stored secrets in Matrix Secure Storage.
+	// This should be set for cross-signing to be possible.
+	SecureStoragePassphrase string
 }
 
 // A IncomingDecimalSAS contains the decimal SAS as displayed on another device. The SAS consists of three numbers.

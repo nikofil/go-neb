@@ -65,6 +65,13 @@ func (botClient *BotClient) InitOlmMachine(client *mautrix.Client, nebStore *mat
 	if err = olmMachine.Load(); err != nil {
 		return
 	}
+
+	if botClient.config.SecureStoragePassphrase != "" {
+		if err := olmMachine.RetrieveCrossSigningKeysWithPassphrase(botClient.config.SecureStoragePassphrase); err != nil {
+			log.WithError(err).Error("Error retrieving cross-signing keys from secure storage")
+		}
+	}
+
 	botClient.olmMachine = olmMachine
 
 	return nil
